@@ -1,0 +1,11 @@
+Model Information:
+* title:	Roulette Table
+* source:	https://sketchfab.com/3d-models/roulette-table-5a881735972441a084fe71e0424df60b
+* author:	Dudzy (https://sketchfab.com/Dudzy)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Roulette Table" (https://sketchfab.com/3d-models/roulette-table-5a881735972441a084fe71e0424df60b) by Dudzy (https://sketchfab.com/Dudzy) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
