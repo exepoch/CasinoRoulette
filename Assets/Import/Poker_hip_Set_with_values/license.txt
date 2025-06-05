@@ -1,0 +1,11 @@
+Model Information:
+* title:	Poker Сhip Set with values
+* source:	https://sketchfab.com/3d-models/poker-hip-set-with-values-a55f1eab6312491b8492630fdd58ac2b
+* author:	anna_bezzu (https://sketchfab.com/anna_bezzu)
+
+Model License:
+* license type:	CC-BY-NC-ND-4.0 (http://creativecommons.org/licenses/by-nc-nd/4.0/)
+* requirements:	Author must be credited. No commercial use. Modified versions can not be distributed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Poker Сhip Set with values" (https://sketchfab.com/3d-models/poker-hip-set-with-values-a55f1eab6312491b8492630fdd58ac2b) by anna_bezzu (https://sketchfab.com/anna_bezzu) licensed under CC-BY-NC-ND-4.0 (http://creativecommons.org/licenses/by-nc-nd/4.0/)
