@@ -1,4 +1,6 @@
-namespace Gameplay.Betting
+using System.Collections.Generic;
+
+namespace Gameplay.Betting.Interfaces
 {
     public interface IAnchorService
     {
@@ -9,5 +11,10 @@ namespace Gameplay.Betting
         /// <param name="id">Anchor ID to fetch.</param>
         /// <returns>BetAnchor instance.</returns>
         BetAnchor GetAnchorById(int id);
+
+        /// <summary>
+        /// Returns all registered betanchors with list.
+        /// </summary>
+        public List<BetAnchor> GetAll();
     }
 }

@@ -10,8 +10,8 @@ namespace User
     /// </summary>
     public class Wallet : MonoBehaviour, IWalletService
     {
-        public static Wallet Instance { get; private set; }
-
+        public static IWalletService Instance { get; private set; }
+        
         [SerializeField]
         private long startingBalance = 1000;
 
@@ -20,7 +20,7 @@ namespace User
         private void Awake()
         {
             // Singleton pattern to ensure only one instance exists
-            if (Instance != null && Instance != this)
+            if (Instance != null && (Wallet)Instance != this)
             {
                 Destroy(gameObject);
                 return;

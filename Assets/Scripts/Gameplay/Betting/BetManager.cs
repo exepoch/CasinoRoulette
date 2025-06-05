@@ -1,115 +1,99 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Events;
 using Gameplay.Betting.Data;
+using Gameplay.Betting.Interfaces;
 using UnityEngine;
 using User;
 
 namespace Gameplay.Betting
 {
     /// <summary>
-    /// Manages bets placed by the player.
-    /// Subscribes to chip selection and anchor click events to handle placing bets.
-    /// Uses an abstracted wallet service to check and update player balance.
+    /// Manages player bets: placing, undoing, clearing bets.
+    /// Uses wallet and anchor services, listens to relevant events.
     /// </summary>
     public class BetManager : MonoBehaviour
     {
-        [Tooltip("Reference to the Wallet component to manage player balance.")]
-        [SerializeField] private Wallet wallet;
-        [SerializeField] private AnchorManager anchorManager;
-
         private long _totalBetAmount;
-        
-        // Currently active bets on anchors
+        private BetActionsPool _betActionsPool;
         private List<PlacedBet> activeBets = new();
         private IAnchorService _anchorService;
-
-        // The currently selected chip value
-        private int _currentSelectedChip;
-
-        // Abstract wallet service to allow for better testability and loose coupling
         private IWalletService _walletService;
+        private int _currentSelectedChip;
 
         private void Awake()
         {
-            // Initialize wallet service from serialized Wallet instance
-            _walletService = wallet;
-            _anchorService = anchorManager;
+            _walletService = Wallet.Instance ?? throw new Exception("Wallet instance missing!");
+            _anchorService = AnchorManager.Instance ?? throw new Exception("AnchorManager instance missing!");
+            _betActionsPool = new BetActionsPool();
         }
 
         private void OnEnable()
         {
-            // Subscribe to relevant events
             EventBus<ChipSelectedEvent>.Subscribe(OnChipSelected);
             EventBus<BetAnchorClickedEvent>.Subscribe(OnBetAnchorClicked);
+            EventBus<UndoBetClickedEvent>.Subscribe(OnUndoBetClicked);
+            EventBus<ClearAllBetsEvent>.Subscribe(OnClearAllBets);
         }
 
         private void OnDisable()
         {
-            // Unsubscribe to prevent memory leaks and unexpected behavior
             EventBus<ChipSelectedEvent>.Unsubscribe(OnChipSelected);
             EventBus<BetAnchorClickedEvent>.Unsubscribe(OnBetAnchorClicked);
+            EventBus<UndoBetClickedEvent>.Unsubscribe(OnUndoBetClicked);
+            EventBus<ClearAllBetsEvent>.Unsubscribe(OnClearAllBets);
         }
 
-        /// <summary>
-        /// Handles BetAnchor click event by placing a bet on the clicked anchor ID.
-        /// </summary>
-        private void OnBetAnchorClicked(BetAnchorClickedEvent obj) => PlaceBet(obj.ClickedAnchorId);
+        private void OnChipSelected(ChipSelectedEvent evt) => _currentSelectedChip = (int)evt.SelectedChip;
 
-        /// <summary>
-        /// Updates the current selected chip value based on chip selection event.
-        /// </summary>
-        private void OnChipSelected(ChipSelectedEvent eventArg)
-        {
-            _currentSelectedChip = (int)eventArg.SelectedChip;
-        }
+        private void OnBetAnchorClicked(BetAnchorClickedEvent evt) => PlaceBet(evt.ClickedAnchorId);
 
-        /// <summary>
-        /// Attempts to place a bet on the given anchor ID using the currently selected chip.
-        /// Checks wallet balance before placing the bet.
-        /// </summary>
+        private void OnUndoBetClicked(UndoBetClickedEvent evt) => UndoBet();
+
+        private void OnClearAllBets(ClearAllBetsEvent evt) => ClearAllBets();
+
         private void PlaceBet(int anchorID)
         {
-            // Check if player has enough funds
-            if (!_walletService.TrySpend(_currentSelectedChip)) 
-                return;
+            if (!_walletService.TrySpend(_currentSelectedChip)) return;
 
-            // Find existing bet on this anchor if any
             var existing = activeBets.FirstOrDefault(b => b.AnchorID == anchorID);
+            if (existing != null) existing.TotalAmount += _currentSelectedChip;
+            else activeBets.Add(new PlacedBet { AnchorID = anchorID, TotalAmount = _currentSelectedChip });
 
-            if (existing != null)
-            {
-                // Add chip amount to existing bet
-                existing.TotalAmount += _currentSelectedChip;
-            }
-            else
-            {
-                // Add a new bet entry
-                activeBets.Add(new PlacedBet
-                {
-                    AnchorID = anchorID,
-                    TotalAmount = _currentSelectedChip
-                });
-            }
+            var anchor = _anchorService.GetAnchorById(anchorID);
+            if (anchor == null) return;
 
-            // Notify BetAnchor to update visual chips stack
-            _anchorService.GetAnchorById(anchorID)?.AddChips(_currentSelectedChip);
-            _totalBetAmount = activeBets.Sum(x => x.TotalAmount);
-            EventBus<BetAmountChangedEvent>.Raise(new BetAmountChangedEvent
-            {
-                UpdatedTotalBetAmount = _totalBetAmount
-            });
+            anchor.AddChips(_currentSelectedChip);
+            _betActionsPool.Add(anchor, _currentSelectedChip);
+
+            _totalBetAmount = activeBets.Sum(b => b.TotalAmount);
+            EventBus<BetAmountChangedEvent>.Raise(new BetAmountChangedEvent { UpdatedTotalBetAmount = _totalBetAmount });
         }
 
-        /// <summary>
-        /// Clears all active bets and resets chips on each anchor.
-        /// </summary>
-        public void ClearAllBets()
+        private void UndoBet()
         {
-            foreach (var bet in activeBets)
-                _anchorService.GetAnchorById(bet.AnchorID)?.ClearBets();
+            var action = _betActionsPool.Undo();
+            if (!action.HasValue) return;
+
+            var betValue = action.Value.Value;
+            action.Value.Anchor.RemoveChips(betValue);
+            _totalBetAmount -= betValue;
+            _walletService.AddFunds(betValue);
+
+            EventBus<BetAmountChangedEvent>.Raise(new BetAmountChangedEvent { UpdatedTotalBetAmount = _totalBetAmount });
+        }
+
+        private void ClearAllBets()
+        {
+            foreach (var anchor in _anchorService.GetAll())
+                anchor?.ClearBets();
 
             activeBets.Clear();
+            _walletService.AddFunds(_betActionsPool.Clear());
+            _totalBetAmount = 0;
+
+            EventBus<BetAmountChangedEvent>.Raise(new BetAmountChangedEvent { UpdatedTotalBetAmount = _totalBetAmount });
         }
     }
 }

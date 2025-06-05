@@ -6,35 +6,37 @@ using UnityEngine.EventSystems;
 namespace Gameplay.Betting
 {
     /// <summary>
-    /// Represents a betting anchor on the roulette table.
-    /// Handles mouse interaction, glow effect, and manages chips placed on this anchor.
+    /// Represents a betting anchor on the table.
+    /// Manages mouse hover glow, broadcasts highlight events, and handles chip stacking.
     /// </summary>
     public class BetAnchor : MonoBehaviour
     {
-        [SerializeField] private GameObject glowObject; // Visual indicator for hover effect
-        [SerializeField] public int[] numbers;          // Numbers this anchor covers (e.g., 1-18)
-        /// <summary>
-        /// Public getter for the anchor's unique identifier.
-        /// </summary>
+        [SerializeField] private GameObject glowObject; // Glow effect object
+        [SerializeField] public int[] numbers;          // Covered numbers
         public int AnchorID => anchorID;
-        
-        private ChipStack stack;  // Stack of chips placed on this anchor (TODO)
-        private BetType betType;  // Type of bet this anchor represents
-        [SerializeField] private int anchorID; // Unique ID assigned at Editor
+
+        private ChipStack stack;
+        private BetType betType;
+        [SerializeField] private int anchorID;
 
         void Start()
         {
-            // Disable glow effect initially
-            if (glowObject)
-                glowObject.SetActive(false);
+            glowObject?.SetActive(false);
+
+            // Initialize chip stack under this anchor
+            stack = new GameObject("Stack").AddComponent<ChipStack>();
+            stack.Initialize(ChipFactory.Instance);
+            stack.SetInitialPosition(transform.position);
+            stack.transform.SetParent(transform);
+            stack.transform.localPosition = Vector3.zero;
         }
 
         private void OnMouseEnter()
         {
-            if(EventSystem.current.IsPointerOverGameObject()) return;
+            if (EventSystem.current.IsPointerOverGameObject()) return;
             SetGlow(true);
 
-            // Broadcast highlight event to show glow/highlight on related numbers
+            // Notify to highlight covered numbers
             EventBus<HighlightEvent>.Raise(new HighlightEvent
             {
                 Type = HighlightEvent.HighlightType.Show,
@@ -42,12 +44,12 @@ namespace Gameplay.Betting
             });
         }
 
-        void OnMouseExit()
+        private void OnMouseExit()
         {
-            if(EventSystem.current.IsPointerOverGameObject()) return;
+            if (EventSystem.current.IsPointerOverGameObject()) return;
             SetGlow(false);
 
-            // Broadcast highlight event to hide glow/highlight on related numbers
+            // Notify to remove highlight
             EventBus<HighlightEvent>.Raise(new HighlightEvent
             {
                 Type = HighlightEvent.HighlightType.Hide,
@@ -55,32 +57,13 @@ namespace Gameplay.Betting
             });
         }
 
-        /// <summary>
-        /// Adds chip value to the current chip stack on this anchor.
-        /// </summary>
-        /// <param name="value">Chip value to add.</param>
-        public void AddChips(int value)
-        {
-            // TODO: Add chips to stack
-            Debug.LogWarning($"{value} Chips Added to stack:{anchorID}");
-        }
+        public void AddChips(int value) => stack.Add(value);
+        public void RemoveChips(int value) => stack.Remove(value);
+        public void ClearBets() => stack.Clear();
 
-        /// <summary>
-        /// Clears all chips placed on this anchor.
-        /// </summary>
-        public void ClearBets()
-        {
-            // TODO: Clear chips at stack
-        }
-
-        /// <summary>
-        /// Enables or disables the glow visual effect.
-        /// </summary>
-        /// <param name="set">True to enable glow, false to disable.</param>
         public void SetGlow(bool set)
         {
-            if (glowObject)
-                glowObject.SetActive(set);
+            if (glowObject) glowObject.SetActive(set);
         }
     }
 }

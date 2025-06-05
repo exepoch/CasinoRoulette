@@ -1,22 +1,36 @@
 using System.Collections.Generic;
 using System.Linq;
 using Events;
+using Gameplay.Betting.Interfaces;
 using UnityEngine;
 
 namespace Gameplay.Betting
 {
-    public class AnchorManager : MonoBehaviour,IAnchorService
+    /// <summary>
+    /// Singleton managing all BetAnchors, handles highlight events and anchor retrieval.
+    /// </summary>
+    public class AnchorManager : MonoBehaviour, IAnchorService
     {
-        [Tooltip("All BetAnchors to control.")]
+        public static IAnchorService Instance;
+        
         [SerializeField] private List<BetAnchor> allAnchors;
+
+        private void Awake()
+        {
+            // Singleton setup: keep only one instance
+            if (Instance != null && (AnchorManager)Instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+            Instance = this;
+        }
 
         private void OnEnable()
         {
             if (allAnchors == null || allAnchors.Count == 0)
-            {
-                Debug.LogWarning("Anchor highlight error: anchors are not initialized in the editor!");
-                return;
-            }
+                Debug.LogWarning("Anchors not assigned!");
+
             EventBus<HighlightEvent>.Subscribe(OnHighlightEvent);
         }
 
@@ -26,24 +40,22 @@ namespace Gameplay.Betting
         }
         
         /// <summary>
-        /// Called when a HighlightEvent is raised.
-        /// Updates glow state for each anchor based on event data.
+        /// Highlights anchors based on event data.
         /// </summary>
         private void OnHighlightEvent(HighlightEvent evt)
         {
             foreach (var anchor in allAnchors)
-            {
-                // Check if anchor's ID is included in the event number IDs
-                bool shouldGlow = evt.NumberIds.Contains(anchor.AnchorID);
-
-                // Set glow only if event type is Show and anchor is in the list
-                anchor.SetGlow(shouldGlow && evt.Type == HighlightEvent.HighlightType.Show);
-            }
+                anchor.SetGlow(evt.NumberIds.Contains(anchor.AnchorID) && evt.Type == HighlightEvent.HighlightType.Show);
         }
 
-        public BetAnchor GetAnchorById(int id)
-        {
-            return allAnchors.FirstOrDefault(x => x.AnchorID == id);
-        }
+        /// <summary>
+        /// Get anchor by ID.
+        /// </summary>
+        public BetAnchor GetAnchorById(int id) => allAnchors.FirstOrDefault(x => x.AnchorID == id);
+
+        /// <summary>
+        /// Get all anchors.
+        /// </summary>
+        public List<BetAnchor> GetAll() => allAnchors;
     }
 }

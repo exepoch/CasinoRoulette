@@ -1,6 +1,8 @@
+using System;
 using Events;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace UI.Chips
 {
@@ -28,6 +30,9 @@ namespace UI.Chips
         /// This should be assigned via the Inspector with a TextMeshProUGUI component.
         /// </summary>
         [SerializeField] private TextMeshProUGUI totalBetAmountText;
+        
+        [SerializeField] private Button undoButton;
+        [SerializeField] private Button clearBetsButton;
 
 
         private void Awake()
@@ -40,6 +45,9 @@ namespace UI.Chips
                 return;
             }
             Instance = this;
+            
+            undoButton.onClick.AddListener(()=> EventBus<UndoBetClickedEvent>.Raise(new UndoBetClickedEvent()));
+            clearBetsButton.onClick.AddListener(()=> EventBus<ClearAllBetsEvent>.Raise(new ClearAllBetsEvent()));
         }
         
         private void OnEnable()
@@ -47,15 +55,15 @@ namespace UI.Chips
             // Subscribe to balance and bet amount change events to update bettable state
             EventBus<BalanceChangedEvent>.Subscribe(OnBalanceUpdate);
             EventBus<BetAmountChangedEvent>.Subscribe(OnBetAmountChanged);
+            EventBus<BetCountChangedEvent>.Subscribe(OnBetCountChanged);
         }
-
-       
 
         private void OnDisable()
         {
             // Unsubscribe when disabled to avoid memory leaks
             EventBus<BalanceChangedEvent>.Unsubscribe(OnBalanceUpdate);
             EventBus<BetAmountChangedEvent>.Unsubscribe(OnBetAmountChanged);
+            EventBus<BetCountChangedEvent>.Unsubscribe(OnBetCountChanged);
         }
         
         private void OnBalanceUpdate(BalanceChangedEvent obj)
@@ -65,6 +73,10 @@ namespace UI.Chips
         private void OnBetAmountChanged(BetAmountChangedEvent obj)
         {
             totalBetAmountText.text = $"Total Bet: ${obj.UpdatedTotalBetAmount:N0}";
+        }
+        private void OnBetCountChanged(BetCountChangedEvent obj)
+        {
+            undoButton.interactable = obj.BetCount > 0;
         }
         
         /// <summary>
