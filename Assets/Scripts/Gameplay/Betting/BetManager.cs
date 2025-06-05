@@ -24,8 +24,8 @@ namespace Gameplay.Betting
 
         private void Awake()
         {
-            _walletService = Wallet.Instance ?? throw new Exception("Wallet instance missing!");
-            _anchorService = AnchorManager.Instance ?? throw new Exception("AnchorManager instance missing!");
+            _walletService = Wallet.Instance;
+            _anchorService = AnchorManager.Instance;
             _betActionsPool = new BetActionsPool();
         }
 

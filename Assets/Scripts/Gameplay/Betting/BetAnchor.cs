@@ -21,7 +21,7 @@ namespace Gameplay.Betting
 
         void Start()
         {
-            glowObject?.SetActive(false);
+            if (glowObject != null) glowObject.SetActive(false);
 
             // Initialize chip stack under this anchor
             stack = new GameObject("Stack").AddComponent<ChipStack>();

@@ -10,7 +10,23 @@ namespace User
     /// </summary>
     public class Wallet : MonoBehaviour, IWalletService
     {
-        public static IWalletService Instance { get; private set; }
+        private static IWalletService instance { get; set; }
+
+        public static IWalletService Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = FindFirstObjectByType<Wallet>();
+
+                    if (instance != null) return instance;
+                    var go = new GameObject("Wallet");
+                    instance = go.AddComponent<Wallet>();
+                }
+                return instance;
+            }
+        }
         
         [SerializeField]
         private long startingBalance = 1000;
@@ -26,7 +42,7 @@ namespace User
                 return;
             }
 
-            Instance = this;
+            instance = this;
             DontDestroyOnLoad(gameObject);
 
             currentBalance = startingBalance;
