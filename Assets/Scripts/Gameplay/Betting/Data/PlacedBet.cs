@@ -14,6 +14,6 @@ namespace Gameplay.Betting.Data
         /// <summary>
         /// The total amount of chips placed on this bet.
         /// </summary>
-        public int TotalAmount;
+        public long TotalAmount;
     }
 }

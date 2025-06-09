@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Events;
+using Events.EventTypes;
 using Gameplay.Betting.Interfaces;
 using UnityEngine;
 

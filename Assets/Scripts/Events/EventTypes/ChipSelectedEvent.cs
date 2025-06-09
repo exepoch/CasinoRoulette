@@ -1,6 +1,6 @@
 using Data;
 
-namespace Events
+namespace Events.EventTypes
 {
     /// <summary>
     /// Event data structure raised when the player selects a chip denomination.

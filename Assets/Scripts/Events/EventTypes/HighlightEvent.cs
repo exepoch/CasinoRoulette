@@ -1,4 +1,4 @@
-namespace Events
+namespace Events.EventTypes
 {
     /// <summary>
     /// Event used to request highlighting or clearing highlight on bet anchors (numbers).

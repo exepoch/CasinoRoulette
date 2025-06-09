@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Events;
+using Events.EventTypes;
 using Gameplay.Betting.Data;
 
 namespace Gameplay.Betting
@@ -14,7 +15,7 @@ namespace Gameplay.Betting
         /// <summary>
         /// Adds a new BetAction and raises bet count update event.
         /// </summary>
-        public void Add(BetAnchor anchor, int value)
+        public void Add(BetAnchor anchor, long value)
         {
             _actions.Push(new BetAction { Anchor = anchor, Value = value });
             EventBus<BetCountChangedEvent>.Raise(new BetCountChangedEvent { BetCount = _actions.Count });
@@ -23,9 +24,9 @@ namespace Gameplay.Betting
         /// <summary>
         /// Clears all actions and returns total bet value cleared.
         /// </summary>
-        public int Clear()
+        public long Clear()
         {
-            int total = 0;
+            var total = 0L;
             foreach (var action in _actions)
                 total += action.Value;
 

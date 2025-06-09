@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
+using Core.Interfaces;
 using Data;
-using Gameplay.Betting.Interfaces;
 using UnityEngine;
 
-namespace Gameplay.Betting
+namespace Gameplay.Betting.Chips
 {
     /// <summary>
     /// Manages chip GameObjects stack, creation, pooling and value representation.
@@ -14,17 +14,17 @@ namespace Gameplay.Betting
     {
         private readonly Dictionary<ChipType, List<GameObject>> _chips = new();
         private IChipFactory _chipFactory;
-        private float _value = 0;
+        private long _value = 0;
 
         public void Initialize(IChipFactory factory) => _chipFactory = factory;
 
         public void SetInitialPosition(Vector3 pos) => transform.position = pos;
 
-        public void Add(float value) => SetValue(_value + value);
+        public void Add(long value) => SetValue(_value + value);
 
-        public void Remove(float value) => SetValue(_value - value);
+        public void Remove(long value) => SetValue(_value - value);
 
-        public float GetValue() => _value;
+        public long GetValue() => _value;
 
         /// <summary>
         /// Clears all chips and returns them to the pool.
@@ -41,7 +41,7 @@ namespace Gameplay.Betting
             _chips.Clear();
         }
 
-        private void SetValue(float newValue)
+        private void SetValue(long newValue)
         {
             Clear();
             if (newValue <= 0) return;
@@ -82,10 +82,9 @@ namespace Gameplay.Betting
         /// <summary>
         /// Applies win multiplier, updates stack, and triggers chip collection.
         /// </summary>
-        public float WinAmount(int multiplier)
+        public long WinAmount(int multiplier)
         {
             var winAmount = _value * multiplier;
-            SetValue(winAmount);
             if (winAmount > 0) CollectChips();
             return winAmount;
         }
@@ -93,6 +92,7 @@ namespace Gameplay.Betting
         public void CollectChips()
         {
             // TODO: Add chip collection animation
+            Clear();
         }
     }
 }

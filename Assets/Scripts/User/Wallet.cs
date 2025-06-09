@@ -1,4 +1,5 @@
 using Events;
+using Events.EventTypes;
 using UnityEngine;
 
 namespace User
@@ -31,7 +32,7 @@ namespace User
         [SerializeField]
         private long startingBalance = 1000;
 
-        private long currentBalance;
+        private long _currentBalance;
 
         private void Awake()
         {
@@ -45,7 +46,7 @@ namespace User
             instance = this;
             DontDestroyOnLoad(gameObject);
 
-            currentBalance = startingBalance;
+            _currentBalance = startingBalance;
         }
 
         /// <summary>
@@ -55,15 +56,14 @@ namespace User
         /// </summary>
         public bool TrySpend(long amount)
         {
-            if (currentBalance < amount)
+            if (_currentBalance < amount)
                 return false;
 
-            currentBalance -= amount;
-            Debug.LogWarning($"Spent {amount}. Current Balance: {currentBalance}");
+            _currentBalance -= amount;
 
             EventBus<BalanceChangedEvent>.Raise(new BalanceChangedEvent
             {
-                UpdatedBalance = currentBalance
+                UpdatedBalance = _currentBalance
             });
 
             return true;
@@ -74,12 +74,11 @@ namespace User
         /// </summary>
         public void AddFunds(long amount)
         {
-            currentBalance += amount;
-            Debug.LogWarning($"Added {amount}. Current Balance: {currentBalance}");
+            _currentBalance += amount;
 
             EventBus<BalanceChangedEvent>.Raise(new BalanceChangedEvent
             {
-                UpdatedBalance = currentBalance
+                UpdatedBalance = _currentBalance
             });
         }
 
@@ -88,7 +87,7 @@ namespace User
         /// </summary>
         public long GetBalance()
         {
-            return currentBalance;
+            return _currentBalance;
         }
     }
 }

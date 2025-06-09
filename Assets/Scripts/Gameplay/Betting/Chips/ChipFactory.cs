@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Core.Interfaces;
 using Data;
 using Gameplay.Betting.Data;
 using Gameplay.Betting.Interfaces;
@@ -49,6 +50,6 @@ namespace Gameplay.Betting
         /// <summary>
         /// Retrieves chip configuration data.
         /// </summary>
-        public List<ChipData> GetChipConfigs() => chipPool.GetConfigs();
+        public List<ChipDataSO> GetChipConfigs() => chipPool.GetConfigs();
     }
 }

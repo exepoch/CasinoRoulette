@@ -1,4 +1,4 @@
-namespace Events
+namespace Events.EventTypes
 {
     /// <summary>
     /// Event data structure representing a change in the player's bet action for each chip added.

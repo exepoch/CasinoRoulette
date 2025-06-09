@@ -1,4 +1,4 @@
-namespace Events
+namespace Events.EventTypes
 {
     /// <summary>
     /// Event data structure dispatched when a BetAnchor (betting position) is clicked by the player.

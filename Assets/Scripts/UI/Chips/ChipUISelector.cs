@@ -1,5 +1,6 @@
 using Data;
 using Events;
+using Events.EventTypes;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -28,12 +29,14 @@ namespace UI.Chips
         {
             // Subscribe to balance change events to update bettable state
             EventBus<BalanceChangedEvent>.Subscribe(OnBalanceUpdate);
+            EventBus<GameStateChangedEvent>.Subscribe(OnGameStateChanged);
         }
 
         private void OnDisable()
         {
             // Unsubscribe when disabled to avoid memory leaks
             EventBus<BalanceChangedEvent>.Unsubscribe(OnBalanceUpdate);
+            EventBus<GameStateChangedEvent>.Unsubscribe(OnGameStateChanged);
         }
 
         // Called when player's balance changes, updates whether this chip can be bet
@@ -44,6 +47,10 @@ namespace UI.Chips
             if(!_bettable) ring.SetActive(false);
             _button.interactable = _bettable;
         }
+        private void OnGameStateChanged(GameStateChangedEvent eventArgs)
+        {
+            _button.interactable = eventArgs.CurrentState == GameState.Betting;
+        }
 
         // Called when user clicks the chip button
         private void OnClick()
@@ -52,7 +59,7 @@ namespace UI.Chips
             if (!_bettable) return;
 
             // Inform UI manager about the new selection
-            ChipUIManager.Instance.SetNewSelector(this);
+            UIManager.Instance.SetNewSelector(this);
         }
 
         // Enables or disables the ring visual to show selection state

@@ -1,4 +1,6 @@
 using Events;
+using Events.EventTypes;
+using Gameplay.Betting.Chips;
 using Gameplay.Betting.Data;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -15,8 +17,8 @@ namespace Gameplay.Betting
         [SerializeField] public int[] numbers;          // Covered numbers
         public int AnchorID => anchorID;
 
-        private ChipStack stack;
-        private BetType betType;
+        private ChipStack _stack;
+        private BetType _betType;
         [SerializeField] private int anchorID;
 
         void Start()
@@ -24,11 +26,11 @@ namespace Gameplay.Betting
             if (glowObject != null) glowObject.SetActive(false);
 
             // Initialize chip stack under this anchor
-            stack = new GameObject("Stack").AddComponent<ChipStack>();
-            stack.Initialize(ChipFactory.Instance);
-            stack.SetInitialPosition(transform.position);
-            stack.transform.SetParent(transform);
-            stack.transform.localPosition = Vector3.zero;
+            _stack = new GameObject("Stack").AddComponent<ChipStack>();
+            _stack.Initialize(ChipFactory.Instance);
+            _stack.SetInitialPosition(transform.position);
+            _stack.transform.SetParent(transform);
+            _stack.transform.localPosition = Vector3.zero;
         }
 
         private void OnMouseEnter()
@@ -46,7 +48,6 @@ namespace Gameplay.Betting
 
         private void OnMouseExit()
         {
-            if (EventSystem.current.IsPointerOverGameObject()) return;
             SetGlow(false);
 
             // Notify to remove highlight
@@ -57,9 +58,23 @@ namespace Gameplay.Betting
             });
         }
 
-        public void AddChips(int value) => stack.Add(value);
-        public void RemoveChips(int value) => stack.Remove(value);
-        public void ClearBets() => stack.Clear();
+        public void AddChips(long value) => _stack.Add(value);
+        public void RemoveChips(long value) => _stack.Remove(value);
+        public void ClearBets() => _stack.Clear();
+
+        public long Winnings(int numsCount, int resultNumber)
+        {
+            for (var i = 0; i < numbers.Length; i++)
+            {
+                var numb = numbers[i];
+                if (numb != resultNumber) continue;
+                
+                return _stack.WinAmount(numsCount / numbers.Length);
+            }
+            
+            _stack.Clear();
+            return 0;
+        }
 
         public void SetGlow(bool set)
         {

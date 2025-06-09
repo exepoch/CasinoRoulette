@@ -3,12 +3,12 @@ using Data;
 using Gameplay.Betting.Data;
 using UnityEngine;
 
-namespace Gameplay.Betting.Interfaces
+namespace Core.Interfaces
 {
     public interface IChipFactory
     {
         GameObject CreateChip(ChipType type, Transform parent, Vector3 localPosition);
         void ReturnChip(ChipType type,GameObject chip);
-        public List<ChipData> GetChipConfigs();
+        public List<ChipDataSO> GetChipConfigs();
     }
 }

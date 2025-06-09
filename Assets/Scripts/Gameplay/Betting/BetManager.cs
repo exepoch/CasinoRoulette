@@ -1,7 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Events;
+using Events.EventTypes;
 using Gameplay.Betting.Data;
 using Gameplay.Betting.Interfaces;
 using UnityEngine;
@@ -20,7 +20,7 @@ namespace Gameplay.Betting
         private List<PlacedBet> activeBets = new();
         private IAnchorService _anchorService;
         private IWalletService _walletService;
-        private int _currentSelectedChip;
+        private long _currentSelectedChip;
 
         private void Awake()
         {
@@ -35,14 +35,25 @@ namespace Gameplay.Betting
             EventBus<BetAnchorClickedEvent>.Subscribe(OnBetAnchorClicked);
             EventBus<UndoBetClickedEvent>.Subscribe(OnUndoBetClicked);
             EventBus<ClearAllBetsEvent>.Subscribe(OnClearAllBets);
+            EventBus<BallStoppedEvent>.Subscribe(OnBallStopped);
         }
-
         private void OnDisable()
         {
             EventBus<ChipSelectedEvent>.Unsubscribe(OnChipSelected);
             EventBus<BetAnchorClickedEvent>.Unsubscribe(OnBetAnchorClicked);
             EventBus<UndoBetClickedEvent>.Unsubscribe(OnUndoBetClicked);
             EventBus<ClearAllBetsEvent>.Unsubscribe(OnClearAllBets);
+            EventBus<BallStoppedEvent>.Unsubscribe(OnBallStopped);
+        }
+        private void OnBallStopped(BallStoppedEvent obj)
+        {
+            var totalWinning = _anchorService.GetAll().Sum(x => x.Winnings(obj.SlotNumberCount,obj.ResultNumber));
+            _walletService.AddFunds(totalWinning);
+            EventBus<BetResultEvent>.Raise(new BetResultEvent
+            {
+                WinningAmount = totalWinning
+            });
+            ClearAllBets(true);
         }
 
         private void OnChipSelected(ChipSelectedEvent evt) => _currentSelectedChip = (int)evt.SelectedChip;
@@ -84,13 +95,15 @@ namespace Gameplay.Betting
             EventBus<BetAmountChangedEvent>.Raise(new BetAmountChangedEvent { UpdatedTotalBetAmount = _totalBetAmount });
         }
 
-        private void ClearAllBets()
+        private void ClearAllBets(bool fromResult = false)
         {
             foreach (var anchor in _anchorService.GetAll())
                 anchor?.ClearBets();
 
             activeBets.Clear();
-            _walletService.AddFunds(_betActionsPool.Clear());
+            var returningBalance = _betActionsPool.Clear();
+            if(!fromResult)
+                _walletService.AddFunds(returningBalance);
             _totalBetAmount = 0;
 
             EventBus<BetAmountChangedEvent>.Raise(new BetAmountChangedEvent { UpdatedTotalBetAmount = _totalBetAmount });

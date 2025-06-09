@@ -3,8 +3,8 @@ using UnityEngine;
 
 namespace Gameplay.Betting.Data
 {
-    [CreateAssetMenu(menuName = "Chips/Chip Data")]
-    public class ChipData : ScriptableObject
+    [CreateAssetMenu(menuName = "Scriptable/Chips/Chip Data")]
+    public class ChipDataSO : ScriptableObject
     {
         public ChipType chipType;
         public GameObject prefab;

@@ -11,7 +11,7 @@ namespace Gameplay.Betting
     /// </summary>
     public class ChipPool : MonoBehaviour
     {
-        [SerializeField] private List<ChipData> chipConfigs;
+        [SerializeField] private List<ChipDataSO> chipConfigs;
 
         private Dictionary<ChipType, Queue<GameObject>> pools = new();
         private Dictionary<ChipType, GameObject> prefabMap = new();
@@ -49,6 +49,6 @@ namespace Gameplay.Betting
             pools[type].Enqueue(chip);
         }
 
-        public List<ChipData> GetConfigs() => chipConfigs;
+        public List<ChipDataSO> GetConfigs() => chipConfigs;
     }
 }

@@ -3,6 +3,6 @@ namespace Gameplay.Betting.Data
     public struct BetAction
     {
         public BetAnchor Anchor;
-        public int Value;
+        public long Value;
     }
 }
