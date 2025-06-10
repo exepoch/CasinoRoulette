@@ -52,7 +52,7 @@ namespace UI.Helpers.History
             _totalCount = _viewModel.Entries.Count;
 
             // Adjust content height based on number of entries
-            content.sizeDelta = new Vector2(content.sizeDelta.x, _totalCount * itemHeight);
+            content.sizeDelta = new Vector2(content.sizeDelta.x, _totalCount * itemHeight + 40f);
 
             pool.ResetAll();
             _pooledViews.Clear();
@@ -91,7 +91,7 @@ namespace UI.Helpers.History
                 return;
 
             _firstDataIndex = newFirstIndex;
-
+            var topPad = itemHeight * (_totalCount - 1) /2 -10;
             for (int i = 0; i < _pooledViews.Count; i++)
             {
                 int dataIndex = _firstDataIndex + i;
@@ -104,11 +104,11 @@ namespace UI.Helpers.History
 
                 var view = _pooledViews[i];
                 view.gameObject.SetActive(true);
-                view.SetData(_viewModel.Entries[dataIndex]);
+                
 
                 // Reposition entry based on its index in the full list
-                var rt = view.GetComponent<RectTransform>();
-                rt.anchoredPosition = new Vector2(50, -dataIndex * itemHeight); // 50 is X padding
+                var rt = view.SetData(_viewModel.Entries[dataIndex]);
+                rt.anchoredPosition = new Vector2(0, -dataIndex * itemHeight + topPad); // Toppad is Y padding
             }
         }
         
@@ -124,7 +124,7 @@ namespace UI.Helpers.History
                 history.entries.Add(new HistoryDataSaveEntry
                 {
                     number = entry.Number,
-                    isWin = entry.Color == "Green"
+                    color = entry.Color
                 });
             }
             return history;
@@ -134,7 +134,7 @@ namespace UI.Helpers.History
         {
             foreach (var stateEntry in state.entries)
             {
-                _viewModel.AddEntry(stateEntry.number,stateEntry.isWin ? "Green" : "Red");
+                _viewModel.AddEntry(stateEntry.number,stateEntry.color);
             }
         }
     }
@@ -148,6 +148,6 @@ namespace UI.Helpers.History
     public class HistoryDataSaveEntry
     {
         public int number;
-        public bool isWin;
+        public string color;
     }
 }

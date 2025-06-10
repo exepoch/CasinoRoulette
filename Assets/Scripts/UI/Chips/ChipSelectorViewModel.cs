@@ -1,6 +1,8 @@
 using Data;
 using Events;
 using Events.EventTypes;
+using Events.EventTypes.Audio;
+using UnityEngine;
 
 namespace UI.Chips
 {
@@ -8,7 +10,10 @@ namespace UI.Chips
     public class ChipSelectorViewModel
     {
         // Currently selected chip type (shared across all selectors)
-        public static BindableProperty<ChipType> SelectedChipType = new();
+        public static BindableProperty<ChipType> SelectedChipType = new()
+        {
+            Value = ChipType.None
+        };
 
         // Whether this chip can be interacted with in the UI
         public BindableProperty<bool> StateInteractable = new();
@@ -32,6 +37,15 @@ namespace UI.Chips
             EventBus<BalanceChangedEvent>.Subscribe(OnBalanceUpdate, true);
             EventBus<GameStateChangedEvent>.Subscribe(OnGameStateChanged, true);
             EventBus<ChipSelectedEvent>.Subscribe(OnChipSelected, true);
+            if (SelectedChipType.Value == ChipType.None)
+            {
+                SelectedChipType.Value = ChipType.One;
+                EventBus<ChipSelectedEvent>.Raise(new ChipSelectedEvent
+                {
+                    SelectedChip = ChipType.One
+                });
+            }
+                
         }
 
         // Called when this view model is disabled (e.g. UI is hidden)
@@ -46,6 +60,7 @@ namespace UI.Chips
         // Triggered when this chip is selected by the user
         public void OnSelectChipType(ChipType chipType)
         {
+            AudioEvents.RequestSound(SoundType.ButtonClick);
             // Notify the system about the selection
             EventBus<ChipSelectedEvent>.Raise(new ChipSelectedEvent
             {

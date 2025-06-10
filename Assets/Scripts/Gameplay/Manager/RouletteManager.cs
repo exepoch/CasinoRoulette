@@ -1,5 +1,7 @@
+using Data;
 using Events;
 using Events.EventTypes;
+using Events.EventTypes.Audio;
 using SubSystems.SaveSystem;
 using UnityEngine;
 
@@ -70,6 +72,7 @@ namespace Gameplay.Manager
         private void TrySpin()
         {
             if (_currentState != GameState.Betting) return;
+            AudioEvents.RequestSound(SoundType.SpinStart);
             SetState(GameState.Spinning);
             cameraManager.RotateToRoulette(3,.5f);
         }

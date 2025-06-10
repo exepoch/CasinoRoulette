@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UI.Models;
 using UnityEngine;
@@ -13,12 +14,18 @@ namespace UI.Views
     {
         [SerializeField] private TextMeshProUGUI numberText; // Text component to show the number
         [SerializeField] private Image background; // Background image to set color
+        private RectTransform _rect;
+
+        private void Awake()
+        {
+            _rect = GetComponent<RectTransform>();
+        }
 
         /// <summary>
         /// Sets the display data of this entry from the provided model.
         /// </summary>
         /// <param name="model">The data model containing number and color info.</param>
-        public void SetData(HistoryEntryModel model)
+        public RectTransform SetData(HistoryEntryModel model)
         {
             // Update number text
             numberText.text = model.Number.ToString();
@@ -28,8 +35,9 @@ namespace UI.Views
             {
                 "Red" => Color.red,
                 "Green" => Color.green,
-                _ => Color.gray // Default color for other or unknown values
+                _ => Color.gray // Default color for no Bets played, just spinned
             };
+            return _rect;
         }
     }
 }

@@ -6,6 +6,7 @@ namespace Data
     /// </summary>
     public enum ChipType
     {
+        None = -1,          //None selected
         One = 1,           // Chip worth 1 unit
         Five = 5,          // Chip worth 5 units
         Ten = 10,          // Chip worth 10 units

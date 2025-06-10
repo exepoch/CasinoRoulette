@@ -67,13 +67,15 @@ namespace UI.Views
             // Update win panel and winner number color
             _viewModel.LastWinnings.OnValueChanged += winning =>
             {
-                var isWin = winning.Item1 > 0;
-                winningAmountText.text = isWin ?  $"+ ${winning.Item1:N0}" : $"+ $0";
+                var isWin = winning.WinningAmount > 0;
+                var isLose = winning.LoseAmount > 0;
+                if(!isWin && !isLose) return;
+                winningAmountText.text = isWin ?  $"+ ${winning.WinningAmount:N0}" : $"+ $0";
                 winningAmountText.color = isWin ? Color.green : Color.red;
                 winningHeaderLabel.color = isWin ? Color.green : Color.red;
                 winningHeaderLabel.text = isWin ? "Win" : "Lose";
                 lastWinnerNumberText.color = isWin ? Color.green : Color.red;
-                lastWinnerNumberText.text = $"{winning.Item2}";
+                lastWinnerNumberText.text = $"{winning.WinnerNumber}";
                 profitText.color = _viewModel.Profit.Value > 0 ? Color.green : Color.red;
                 profitText.text = $"Overall Profit: ${_viewModel.Profit.Value:N0}";
                 winPanel.SetActive(true);

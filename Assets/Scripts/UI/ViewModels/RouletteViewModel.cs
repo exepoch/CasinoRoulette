@@ -1,5 +1,7 @@
+using Data;
 using Events;
 using Events.EventTypes;
+using Events.EventTypes.Audio;
 using UnityEngine;
 
 namespace UI.ViewModels
@@ -13,7 +15,7 @@ namespace UI.ViewModels
         public BindableProperty<long> TotalBet = new();                    // Total bet amount
         public BindableProperty<bool> CanUndo = new();                     // Whether undo is available
         public BindableProperty<bool> ButtonsEnabled = new();              // Whether UI buttons are interactable
-        public BindableProperty<(long, int)> LastWinnings = new();         // Last winning amount and number
+        public BindableProperty<BetResultEvent> LastWinnings = new();         // Last winning amount and number
         public BindableProperty<GameState> StateChanged = new();           // Current game state
 
         // Subscribe to relevant game events
@@ -56,16 +58,25 @@ namespace UI.ViewModels
         }
 
         private void OnBetResult(BetResultEvent e) =>
-            LastWinnings.Value = (e.WinningAmount, e.WinnerNumber);
+            LastWinnings.Value = e;
 
         // Command methods that raise corresponding events (UI button bindings)
-        public void OnSpinClicked() =>
+        public void OnSpinClicked()
+        {
+            AudioEvents.RequestSound(SoundType.ButtonClick);
             EventBus<SpinButtonClickedEvent>.Raise(new SpinButtonClickedEvent());
+        }
 
-        public void OnUndoClicked() =>
+        public void OnUndoClicked()
+        {
+            AudioEvents.RequestSound(SoundType.ButtonClick);
             EventBus<UndoBetClickedEvent>.Raise(new UndoBetClickedEvent());
+        }
 
-        public void OnClearClicked() =>
+        public void OnClearClicked()
+        {
+            AudioEvents.RequestSound(SoundType.ButtonClick);
             EventBus<ClearAllBetsEvent>.Raise(new ClearAllBetsEvent());
+        }
     }
 }

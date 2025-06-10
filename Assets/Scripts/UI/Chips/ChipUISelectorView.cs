@@ -14,6 +14,7 @@ namespace UI.Chips
         private void Awake()
         {
             _viewModel = new ChipSelectorViewModel(chipType);
+            ChipSelectorViewModel.SelectedChipType.OnValueChanged += type => ring.SetActive(type == chipType);
             _viewModel.Enable(); // Subscribes to EventBus
             _selectButton = GetComponentInChildren<Button>();
             if(_selectButton == null)
@@ -21,26 +22,24 @@ namespace UI.Chips
             
             BindUI();
         }
-       
-
-        private void Start()
-        {
-            _viewModel.OnSelectChipType(ChipType.One); //Initial selection
-        }
 
         private void OnDestroy() => _viewModel.Disable(); // Unsubscribes from EventBus
 
         private void BindUI()
         {
             if(_selectButton == null) return;
-            ChipSelectorViewModel.SelectedChipType.OnValueChanged += type => ring.SetActive(type == chipType);;
             _viewModel.Bettable.OnValueChanged += b =>
             {
                 if (!b) ring.SetActive(false);
                 _selectButton.interactable = b;
             };
             _viewModel.StateInteractable.OnValueChanged += can => _selectButton.interactable = can;
-            _selectButton.onClick.AddListener(()=> _viewModel.OnSelectChipType(chipType));
+            _selectButton.onClick.AddListener(() =>
+            {
+                _viewModel.OnSelectChipType(chipType);
+            });
+            
+            ring.SetActive(ChipSelectorViewModel.SelectedChipType.Value == chipType);
         }
     }
 }

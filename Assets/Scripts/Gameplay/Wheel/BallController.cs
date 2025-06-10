@@ -1,8 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
+using Data;
 using UnityEngine;
 using Events;
 using Events.EventTypes;
+using Events.EventTypes.Audio;
+using SubSystems.Audio;
 
 namespace Gameplay.Wheel
 {
@@ -12,6 +15,7 @@ namespace Gameplay.Wheel
     /// </summary>
     public class BallController : MonoBehaviour
     {
+        [SerializeField] private AudioSource spinLoopAudioSource;
         // References and state
         private Transform _ball;
         private float _spinSpeed;
@@ -112,6 +116,7 @@ namespace Gameplay.Wheel
         {
             var elapsed = 0f;
 
+            spinLoopAudioSource.enabled = true;
             // Delay before approaching the pocket
             while (elapsed < 3)
             {
@@ -185,6 +190,8 @@ namespace Gameplay.Wheel
             var path = GetRandomJumpPath(_targetPocket.position, 2, 4);
             var iteration = path.Count;
 
+            spinLoopAudioSource.enabled = false;
+            AudioEvents.RequestSound(SoundType.BallBounce);
             foreach (var point in path)
             {
                 yield return JumpToPoint(point.position, iteration--, path.Count);
@@ -304,7 +311,7 @@ namespace Gameplay.Wheel
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
-
+            AudioEvents.RequestSound(SoundType.BallBounce);
             _ball.position = targetPoint;
         }
     }

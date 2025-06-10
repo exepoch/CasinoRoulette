@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Events;
 using Events.EventTypes;
 using UI.Models;
+using UnityEngine;
 
 namespace UI.ViewModels
 {
@@ -42,7 +43,7 @@ namespace UI.ViewModels
         private void OnBetResult(BetResultEvent args)
         {
             //Green if there's a win, otherwise red
-            AddEntry(args.WinnerNumber, args.WinningAmount > 0 ? "Green" : "Red");
+            AddEntry(args.WinnerNumber, args.WinningAmount > 0 ? "Green" : args.LoseAmount >0 ? "Red" : "Gray");
         }
     }
 }

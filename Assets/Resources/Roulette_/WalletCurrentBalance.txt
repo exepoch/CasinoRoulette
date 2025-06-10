@@ -1,1 +1,1 @@
-{"lastBalance":1020,"lastOverallProfit":20}
+{"lastBalance":899,"lastOverallProfit":-101}

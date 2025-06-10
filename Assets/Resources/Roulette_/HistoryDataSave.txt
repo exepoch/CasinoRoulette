@@ -1,1 +1,1 @@
-{"entries":[{"number":33,"isWin":true},{"number":7,"isWin":true},{"number":28,"isWin":true},{"number":29,"isWin":false}]}
+{"entries":[]}

@@ -3,6 +3,7 @@ using System.Linq;
 using Data;
 using Events;
 using Events.EventTypes;
+using Events.EventTypes.Audio;
 using Gameplay.Betting.Data;
 using Gameplay.Betting.Interfaces;
 using SubSystems.SaveSystem;
@@ -34,7 +35,7 @@ namespace Gameplay.Betting
 
         private void OnEnable()
         {
-            EventBus<ChipSelectedEvent>.Subscribe(OnChipSelected);
+            EventBus<ChipSelectedEvent>.Subscribe(OnChipSelected,true);
             EventBus<BetAnchorClickedEvent>.Subscribe(OnBetAnchorClicked);
             EventBus<UndoBetClickedEvent>.Subscribe(OnUndoBetClicked);
             EventBus<ClearAllBetsEvent>.Subscribe(OnClearAllBets);
@@ -55,12 +56,17 @@ namespace Gameplay.Betting
             EventBus<BetResultEvent>.Raise(new BetResultEvent
             {
                 WinningAmount = totalWinning,
-                WinnerNumber = obj.ResultNumber
+                WinnerNumber = obj.ResultNumber,
+                LoseAmount = totalWinning >0 ? 0 : _totalBetAmount
             });
+            AudioEvents.RequestSound(totalWinning > 0 ? SoundType.Win : SoundType.Lose);
             ClearAllBets(true);
         }
 
-        private void OnChipSelected(ChipSelectedEvent evt) => _currentSelectedChip = (int)evt.SelectedChip;
+        private void OnChipSelected(ChipSelectedEvent evt)
+        {
+            _currentSelectedChip = (int)evt.SelectedChip;
+        }
 
         private void OnBetAnchorClicked(BetAnchorClickedEvent evt) => PlaceBet(evt.ClickedAnchorId);
 
@@ -84,6 +90,7 @@ namespace Gameplay.Betting
 
             _totalBetAmount = activeBets.Sum(b => b.TotalAmount);
             EventBus<BetAmountChangedEvent>.Raise(new BetAmountChangedEvent { UpdatedTotalBetAmount = _totalBetAmount });
+            AudioEvents.RequestSound(SoundType.BetPlaced);
         }
 
         private void UndoBet()
@@ -104,6 +111,7 @@ namespace Gameplay.Betting
             }
 
             EventBus<BetAmountChangedEvent>.Raise(new BetAmountChangedEvent { UpdatedTotalBetAmount = _totalBetAmount });
+            AudioEvents.RequestSound(SoundType.BetPlaced);
         }
 
         private void ClearAllBets(bool fromResult = false)
@@ -118,6 +126,7 @@ namespace Gameplay.Betting
             _totalBetAmount = 0;
 
             EventBus<BetAmountChangedEvent>.Raise(new BetAmountChangedEvent { UpdatedTotalBetAmount = _totalBetAmount });
+            AudioEvents.RequestSound(SoundType.BetPlaced);
         }
 
         
