@@ -1,5 +1,6 @@
 using Events;
 using Events.EventTypes;
+using UI.ViewModels;
 using UnityEngine;
 
 namespace Gameplay.Manager
