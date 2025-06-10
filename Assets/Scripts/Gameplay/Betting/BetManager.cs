@@ -51,7 +51,8 @@ namespace Gameplay.Betting
             _walletService.AddFunds(totalWinning);
             EventBus<BetResultEvent>.Raise(new BetResultEvent
             {
-                WinningAmount = totalWinning
+                WinningAmount = totalWinning,
+                WinnerNumber = obj.ResultNumber
             });
             ClearAllBets(true);
         }

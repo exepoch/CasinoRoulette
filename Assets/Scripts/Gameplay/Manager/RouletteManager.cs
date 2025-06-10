@@ -10,13 +10,15 @@ namespace Gameplay.Manager
     public class RouletteManager : MonoBehaviour
     {
         public static RouletteManager Instance;
-        
+
+        [SerializeField] private CameraManager cameraManager;
         private GameState _currentState;
 
         private void Awake()
         {
             Instance = this;
             SetState(GameState.Betting);
+            cameraManager.RotateToBetTable(0);
         }
 
         private void OnEnable()
@@ -57,7 +59,7 @@ namespace Gameplay.Manager
         /// </summary>
         private void BeginGameCycle()
         {
-            SetState(GameState.Betting);
+            cameraManager.RotateToBetTable(2, callBack: () => SetState(GameState.Betting));
         }
 
         /// <summary>
@@ -67,6 +69,7 @@ namespace Gameplay.Manager
         {
             if (_currentState != GameState.Betting) return;
             SetState(GameState.Spinning);
+            cameraManager.RotateToRoulette(3,.5f);
         }
     }
 }

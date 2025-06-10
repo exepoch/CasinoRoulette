@@ -5,9 +5,7 @@ namespace Events.EventTypes
     /// </summary>
     public struct BetResultEvent
     {
-        /// <summary>
-        /// Total amount won.
-        /// </summary>
-        public long WinningAmount;
+        public long WinningAmount; // Total amount won.
+        public int WinnerNumber; // The winner number.
     }
 }

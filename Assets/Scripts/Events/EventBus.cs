@@ -11,15 +11,26 @@ namespace Events
     {
         // Internal event storing all subscribed listeners for event type T
         private static event Action<T> OnEvent;
+        private static T lastEvent;
+        private static bool hasEvent = false;
 
         /// <summary>
         /// Subscribes a listener to the event of type T.
         /// </summary>
-        /// <param name="listener">The method to be called when the event is raised.</param>
-        public static void Subscribe(Action<T> listener)
+        /// <param name="subscriber">The method to be called when the event is raised.</param>
+        /// <param name="receiveLastEventImmediately">
+        /// If true, the subscriber will immediately receive the most recently raised event of type T
+        /// (if any) upon subscription. This is useful for state-like events where the latest value
+        /// should be delivered right away. For one-time or transient events, set this to false.
+        /// </param>
+        public static void Subscribe(Action<T> subscriber, bool receiveLastEventImmediately = false)
         {
-            OnEvent += listener;
+            OnEvent += subscriber;
+            if (receiveLastEventImmediately && hasEvent)
+                subscriber(lastEvent);
         }
+
+
 
         /// <summary>
         /// Unsubscribes a listener from the event of type T.
@@ -36,6 +47,8 @@ namespace Events
         /// <param name="eventData">Data associated with the event being raised.</param>
         public static void Raise(T eventData)
         {
+            lastEvent = eventData;
+            hasEvent = true;
             OnEvent?.Invoke(eventData);
         }
     }

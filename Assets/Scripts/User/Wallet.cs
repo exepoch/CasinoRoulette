@@ -47,6 +47,10 @@ namespace User
             DontDestroyOnLoad(gameObject);
 
             _currentBalance = startingBalance;
+            EventBus<BalanceChangedEvent>.Raise(new BalanceChangedEvent
+            {
+                UpdatedBalance = _currentBalance
+            });
         }
 
         /// <summary>
