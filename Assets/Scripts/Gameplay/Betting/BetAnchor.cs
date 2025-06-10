@@ -1,7 +1,9 @@
+using System;
 using Events;
 using Events.EventTypes;
 using Gameplay.Betting.Chips;
 using Gameplay.Betting.Data;
+using SubSystems.SaveSystem;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -16,6 +18,7 @@ namespace Gameplay.Betting
         [SerializeField] private GameObject glowObject; // Glow effect object
         [SerializeField] public int[] numbers;          // Covered numbers
         public int AnchorID => anchorID;
+        public ChipStack Stack => _stack;
 
         private ChipStack _stack;
         private BetType _betType;

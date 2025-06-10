@@ -1,5 +1,6 @@
 using Events;
 using Events.EventTypes;
+using UnityEngine;
 
 namespace UI.ViewModels
 {
@@ -8,6 +9,7 @@ namespace UI.ViewModels
     {
         // Bindable properties for UI updates
         public BindableProperty<long> Balance = new();                     // Current player balance
+        public BindableProperty<long> Profit = new();                     // Current player profit
         public BindableProperty<long> TotalBet = new();                    // Total bet amount
         public BindableProperty<bool> CanUndo = new();                     // Whether undo is available
         public BindableProperty<bool> ButtonsEnabled = new();              // Whether UI buttons are interactable
@@ -35,7 +37,11 @@ namespace UI.ViewModels
         }
 
         // Event handlers that update bindable properties
-        private void OnBalanceChanged(BalanceChangedEvent e) => Balance.Value = e.UpdatedBalance;
+        private void OnBalanceChanged(BalanceChangedEvent e)
+        {
+            Balance.Value = e.UpdatedBalance;
+            Profit.Value = e.UpdatedProfit;
+        }
 
         private void OnBetAmountChanged(BetAmountChangedEvent e) => TotalBet.Value = e.UpdatedTotalBetAmount;
 

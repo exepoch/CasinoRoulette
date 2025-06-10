@@ -31,6 +31,7 @@ namespace UI.Chips
             // Listen for balance and game state changes
             EventBus<BalanceChangedEvent>.Subscribe(OnBalanceUpdate, true);
             EventBus<GameStateChangedEvent>.Subscribe(OnGameStateChanged, true);
+            EventBus<ChipSelectedEvent>.Subscribe(OnChipSelected, true);
         }
 
         // Called when this view model is disabled (e.g. UI is hidden)
@@ -39,18 +40,22 @@ namespace UI.Chips
             // Stop listening to avoid memory leaks
             EventBus<BalanceChangedEvent>.Unsubscribe(OnBalanceUpdate);
             EventBus<GameStateChangedEvent>.Unsubscribe(OnGameStateChanged);
+            EventBus<ChipSelectedEvent>.Unsubscribe(OnChipSelected);
         }
 
         // Triggered when this chip is selected by the user
         public void OnSelectChipType(ChipType chipType)
         {
-            SelectedChipType.Value = chipType;
-
             // Notify the system about the selection
             EventBus<ChipSelectedEvent>.Raise(new ChipSelectedEvent
             {
                 SelectedChip = chipType
             });
+        }
+        
+        private void OnChipSelected(ChipSelectedEvent obj)
+        {
+            SelectedChipType.Value = obj.SelectedChip;
         }
 
         // React to balance changes

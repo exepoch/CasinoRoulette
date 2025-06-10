@@ -10,5 +10,6 @@ namespace Events.EventTypes
         /// The new balance value after the change.
         /// </summary>
         public long UpdatedBalance;
+        public long UpdatedProfit;
     }
 }

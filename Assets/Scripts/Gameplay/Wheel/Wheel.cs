@@ -1,14 +1,21 @@
+using System;
 using System.Collections.Generic;
 using Core.Interfaces;
 using Events;
 using Events.EventTypes;
 using Gameplay.Wheel.Helper;
+using Palmmedia.ReportGenerator.Core.Parser.Analysis;
+using SubSystems.SaveSystem;
 using UnityEngine;
+using Utils;
+using Random = UnityEngine.Random;
 
 namespace Gameplay.Wheel
 {
-    public abstract class Wheel : MonoBehaviour,IWheel
+    public abstract class Wheel : MonoBehaviour,IWheel,ISaveable<WheelSaveData>
     {
+        public string SaveKey => "WheelDataSave";
+        
         [Header("Referances")] 
         [SerializeField] private BallController ballController;
         [SerializeField] protected Transform ball;
@@ -16,7 +23,6 @@ namespace Gameplay.Wheel
         [SerializeField] protected List<Transform> diamonds;
         
         [Header("Settings")]
-        [SerializeField] protected int predeterminedNumber;
         [SerializeField] protected float wheelRotateSpeed = 0.2f;
         [Range(0f, 15f)]
         [SerializeField]protected float dividerAngle = 1.0f;
@@ -32,17 +38,25 @@ namespace Gameplay.Wheel
         public float spinSpeed = 180f; // Degrees per second that wheel spins
         
         private bool _isSpinning;
+        private int _predeterminedNumber;
 
         private void OnEnable()
         {
             // Subscribe to game state change event when enabled
             EventBus<GameStateChangedEvent>.Subscribe(OnGameStateChanged);
+            EventBus<DeterminedNumberSelectedEvent>.Subscribe(OnDeterminedNumberSelected,true);
         }
 
         private void OnDisable()
         {
             // Unsubscribe to avoid memory leaks when disabled
             EventBus<GameStateChangedEvent>.Unsubscribe(OnGameStateChanged);
+            EventBus<DeterminedNumberSelectedEvent>.Unsubscribe(OnDeterminedNumberSelected);
+        }
+        
+        private void OnDeterminedNumberSelected(DeterminedNumberSelectedEvent args)
+        {
+            _predeterminedNumber = args.SelectedNumber;
         }
         
         private void OnGameStateChanged(GameStateChangedEvent args)
@@ -56,12 +70,21 @@ namespace Gameplay.Wheel
                     break;
                 case GameState.Betting:
                     ballController.IdleRoutine();
+                    SetRandomDeterminationNumber();
                     break;
                 case GameState.Result:
                     break;
             }
         }
-        
+
+        private void SetRandomDeterminationNumber()
+        {
+            EventBus<DeterminedNumberSelectedEvent>.Raise(new DeterminedNumberSelectedEvent
+            {
+                SelectedNumber = Random.Range(0,RouletteType.ToNumberCount())
+            });
+        }
+
         protected virtual void Awake()
         {
             // Initialize the slot transforms array based on the number of pockets
@@ -109,18 +132,21 @@ namespace Gameplay.Wheel
             
             ballController.Initialize(ball,ball.position, spinSpeed, wheelTransform, diamonds,_jumpPointTransforms,SlotOrder.Length);
             ballController.IdleRoutine();
+            SetRandomDeterminationNumber();
         }
-        
+
+        public abstract RouletteType RouletteType { get; }
+
         public void Spin()
         {
-            var targetPocket = FindPocketByNumber(predeterminedNumber);
+            var targetPocket = FindPocketByNumber(_predeterminedNumber);
             if (targetPocket == null)
             {
-                Debug.LogError($"Pocket for number {predeterminedNumber} not found!");
+                Debug.LogError($"Pocket for number {_predeterminedNumber} not found!");
                 return;
             }
 
-            ballController.SpinToTarget(targetPocket, predeterminedNumber);
+            ballController.SpinToTarget(targetPocket, _predeterminedNumber);
         }
 
         private void FixedUpdate()
@@ -166,5 +192,27 @@ namespace Gameplay.Wheel
             Debug.LogWarning($"Number {number} not found in European order array!");
             return null;
         }
+        
+        public WheelSaveData CaptureState()
+        {
+            return new WheelSaveData
+            {
+                lastDeterminedNumber = _predeterminedNumber
+            };
+        }
+
+        public void RestoreState(WheelSaveData state)
+        {
+            _predeterminedNumber = state.lastDeterminedNumber;
+            EventBus<DeterminedNumberSelectedEvent>.Raise(new DeterminedNumberSelectedEvent
+            {
+                SelectedNumber = _predeterminedNumber
+            });
+        }
+    }
+    [Serializable]
+    public class WheelSaveData
+    {
+        public int lastDeterminedNumber;
     }
 }

@@ -1,6 +1,6 @@
 using Events;
 using Events.EventTypes;
-using UI.ViewModels;
+using SubSystems.SaveSystem;
 using UnityEngine;
 
 namespace Gameplay.Manager
@@ -8,8 +8,9 @@ namespace Gameplay.Manager
     /// <summary>
     /// Manages the main roulette game loop and state transitions.
     /// </summary>
-    public class RouletteManager : MonoBehaviour
+    public class RouletteManager : MonoBehaviour,ISaveable<GameState>
     {
+        public string SaveKey => "RouletteManagerGameStateSave";
         public static RouletteManager Instance;
 
         [SerializeField] private CameraManager cameraManager;
@@ -71,6 +72,18 @@ namespace Gameplay.Manager
             if (_currentState != GameState.Betting) return;
             SetState(GameState.Spinning);
             cameraManager.RotateToRoulette(3,.5f);
+        }
+
+        
+        public GameState CaptureState()
+        {
+            return _currentState;
+        }
+
+        public void RestoreState(GameState state)
+        {
+            _currentState = state;
+            SetState(GameState.Betting);
         }
     }
 }

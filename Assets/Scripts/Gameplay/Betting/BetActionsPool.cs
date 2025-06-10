@@ -44,5 +44,7 @@ namespace Gameplay.Betting
             EventBus<BetCountChangedEvent>.Raise(new BetCountChangedEvent { BetCount = _actions.Count - 1 });
             return _actions.Pop();
         }
+
+        public Stack<BetAction> GetActions() => _actions;
     }
 }

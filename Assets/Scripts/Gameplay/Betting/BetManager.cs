@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
+using Data;
 using Events;
 using Events.EventTypes;
 using Gameplay.Betting.Data;
 using Gameplay.Betting.Interfaces;
+using SubSystems.SaveSystem;
 using UnityEngine;
 using User;
 
@@ -13,8 +15,9 @@ namespace Gameplay.Betting
     /// Manages player bets: placing, undoing, clearing bets.
     /// Uses wallet and anchor services, listens to relevant events.
     /// </summary>
-    public class BetManager : MonoBehaviour
+    public class BetManager : MonoBehaviour,ISaveable<BetManagerSaveData>
     {
+        public string SaveKey => "BetManagerSaveData";
         private long _totalBetAmount;
         private BetActionsPool _betActionsPool;
         private List<PlacedBet> activeBets = new();
@@ -92,6 +95,13 @@ namespace Gameplay.Betting
             action.Value.Anchor.RemoveChips(betValue);
             _totalBetAmount -= betValue;
             _walletService.AddFunds(betValue);
+            var existing = activeBets.FirstOrDefault(b => b.AnchorID == action.Value.Anchor.AnchorID);
+            if (existing != null)
+            {
+                existing.TotalAmount -= betValue;
+                if (existing.TotalAmount <= 0)
+                    activeBets.Remove(existing);
+            }
 
             EventBus<BetAmountChangedEvent>.Raise(new BetAmountChangedEvent { UpdatedTotalBetAmount = _totalBetAmount });
         }
@@ -109,5 +119,80 @@ namespace Gameplay.Betting
 
             EventBus<BetAmountChangedEvent>.Raise(new BetAmountChangedEvent { UpdatedTotalBetAmount = _totalBetAmount });
         }
+
+        
+        public BetManagerSaveData CaptureState()
+        {
+            var data = new BetManagerSaveData();
+            data.betActionActiveBetsSaves = new List<BetActionActiveBetsSave>();
+
+            foreach (var action in activeBets)  
+            {
+                data.betActionActiveBetsSaves.Add(new BetActionActiveBetsSave
+                {
+                    anchorID = action.AnchorID,
+                    TotalAmount = action.TotalAmount
+                });
+            }
+
+            data.betActionSaves = new List<BetActionSave>();
+            foreach (var betAction in _betActionsPool.GetActions().Reverse())
+            {
+                data.betActionSaves.Add(new BetActionSave
+                {
+                    anchorID = betAction.Anchor.AnchorID,
+                    selectedChip = betAction.Value
+                });
+            }
+            
+            data.currentSelectedChip = _currentSelectedChip;
+            data.totalBetAmount = _totalBetAmount;
+            return data;
+        }
+
+        public void RestoreState(BetManagerSaveData state)
+        {
+            _currentSelectedChip = state.currentSelectedChip;
+            _totalBetAmount = state.totalBetAmount;
+            EventBus<BetAmountChangedEvent>.Raise(new BetAmountChangedEvent { UpdatedTotalBetAmount = _totalBetAmount });
+            
+            foreach (var actionSave in state.betActionSaves)
+            {
+                var anchor = _anchorService.GetAnchorById(actionSave.anchorID);
+                if (anchor == null) continue;
+                _betActionsPool.Add(anchor, actionSave.selectedChip);
+            }
+
+            foreach (var betSave in state.betActionActiveBetsSaves)
+            {
+                activeBets.Add(new PlacedBet { AnchorID = betSave.anchorID, TotalAmount = betSave.TotalAmount });
+            }
+            EventBus<ChipSelectedEvent>.Raise(new ChipSelectedEvent
+            {
+                SelectedChip = (ChipType)_currentSelectedChip
+            });
+        }
+    }
+    
+    [System.Serializable]
+    public struct BetManagerSaveData
+    {
+        public List<BetActionSave> betActionSaves;
+        public List<BetActionActiveBetsSave> betActionActiveBetsSaves;
+        public long currentSelectedChip;
+        public long totalBetAmount;
+    }
+
+    [System.Serializable]
+    public struct BetActionSave
+    {
+        public int anchorID;
+        public long selectedChip;
+    }
+    [System.Serializable]
+    public struct BetActionActiveBetsSave
+    {
+        public int anchorID;
+        public long TotalAmount;
     }
 }

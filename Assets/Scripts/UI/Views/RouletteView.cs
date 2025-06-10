@@ -14,8 +14,10 @@ namespace UI.Views
 
         [SerializeField] private TextMeshProUGUI balanceText;
         [SerializeField] private TextMeshProUGUI totalBetAmountText;
+        [SerializeField] private TextMeshProUGUI winningHeaderLabel;
         [SerializeField] private TextMeshProUGUI winningAmountText;
         [SerializeField] private TextMeshProUGUI lastWinnerNumberText;
+        [SerializeField] private TextMeshProUGUI profitText;
         [SerializeField] private GameObject winPanel;
 
         private RouletteViewModel _viewModel;
@@ -38,6 +40,13 @@ namespace UI.Views
             // Update balance display when value changes
             _viewModel.Balance.OnValueChanged += value =>
                 balanceText.text = $"Balance: ${value:N0}";
+            
+            // Update profit display when value changes
+            _viewModel.Profit.OnValueChanged += value =>
+            {
+                profitText.color = value > 0 ? Color.green : Color.red;
+                profitText.text = $"Overall Profit: ${value:N0}";
+            };
 
             // Update total bet display
             _viewModel.TotalBet.OnValueChanged += value =>
@@ -59,14 +68,15 @@ namespace UI.Views
             _viewModel.LastWinnings.OnValueChanged += winning =>
             {
                 var isWin = winning.Item1 > 0;
-                if (isWin)
-                {
-                    winningAmountText.text = $"+ ${winning.Item1:N0}";
-                    winPanel.SetActive(true);
-                }
-
+                winningAmountText.text = isWin ?  $"+ ${winning.Item1:N0}" : $"+ $0";
+                winningAmountText.color = isWin ? Color.green : Color.red;
+                winningHeaderLabel.color = isWin ? Color.green : Color.red;
+                winningHeaderLabel.text = isWin ? "Win" : "Lose";
                 lastWinnerNumberText.color = isWin ? Color.green : Color.red;
                 lastWinnerNumberText.text = $"{winning.Item2}";
+                profitText.color = _viewModel.Profit.Value > 0 ? Color.green : Color.red;
+                profitText.text = $"Overall Profit: ${_viewModel.Profit.Value:N0}";
+                winPanel.SetActive(true);
             };
 
             // Hide win panel when game state changes to betting
