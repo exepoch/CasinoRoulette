@@ -30,6 +30,14 @@ namespace UI.Views
             winPanel.SetActive(false); // Hide win panel initially
 
             BindUI(); // Bind ViewModel data to UI
+
+            InitialValues();
+        }
+
+        private void InitialValues()
+        {
+            balanceText.text = $"Balance: ${_viewModel.Balance.Value:N0}";
+            totalBetAmountText.text = $"Total Bet: ${_viewModel.TotalBet.Value:N0}";
         }
 
         private void OnDestroy() =>
@@ -39,7 +47,9 @@ namespace UI.Views
         {
             // Update balance display when value changes
             _viewModel.Balance.OnValueChanged += value =>
+            {
                 balanceText.text = $"Balance: ${value:N0}";
+            };
             
             // Update profit display when value changes
             _viewModel.Profit.OnValueChanged += value =>

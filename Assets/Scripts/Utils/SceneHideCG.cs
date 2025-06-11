@@ -19,7 +19,6 @@ namespace Utils
             }
 
             Instance = this;
-            DontDestroyOnLoad(gameObject);
         }
 
 

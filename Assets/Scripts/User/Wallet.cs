@@ -15,22 +15,6 @@ namespace User
     {
         public string SaveKey => "WalletCurrentBalance";
         private static IWalletService instance { get; set; }
-
-        public static IWalletService Instance
-        {
-            get
-            {
-                if (instance == null)
-                {
-                    instance = FindFirstObjectByType<Wallet>();
-
-                    if (instance != null) return instance;
-                    var go = new GameObject("Wallet");
-                    instance = go.AddComponent<Wallet>();
-                }
-                return instance;
-            }
-        }
         
         [SerializeField] private long startingBalance = 1000;
 
@@ -39,15 +23,7 @@ namespace User
 
         private void Awake()
         {
-            // Singleton pattern to ensure only one instance exists
-            if (Instance != null && (Wallet)Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-
             instance = this;
-            DontDestroyOnLoad(gameObject);
 
             _currentBalance = startingBalance;
             _overallProfit = _currentBalance - startingBalance;

@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using Core.Interfaces;
 using Data;
 using Gameplay.Betting.Data;
-using Gameplay.Betting.Interfaces;
 using UnityEngine;
 
 namespace Gameplay.Betting
@@ -18,12 +17,6 @@ namespace Gameplay.Betting
 
         private void Awake()
         {
-            // Singleton pattern to ensure single instance
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
             Instance = this;
         }
 

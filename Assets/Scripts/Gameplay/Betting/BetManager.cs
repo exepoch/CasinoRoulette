@@ -22,14 +22,16 @@ namespace Gameplay.Betting
         private long _totalBetAmount;
         private BetActionsPool _betActionsPool;
         private List<PlacedBet> activeBets = new();
+        [SerializeField] private Wallet _wallet;
+        [SerializeField] private AnchorManager _anchorManager;
         private IAnchorService _anchorService;
         private IWalletService _walletService;
         private long _currentSelectedChip;
 
         private void Awake()
         {
-            _walletService = Wallet.Instance;
-            _anchorService = AnchorManager.Instance;
+            _walletService = _wallet;
+            _anchorService = _anchorManager;
             _betActionsPool = new BetActionsPool();
         }
 
@@ -83,6 +85,7 @@ namespace Gameplay.Betting
             else activeBets.Add(new PlacedBet { AnchorID = anchorID, TotalAmount = _currentSelectedChip });
 
             var anchor = _anchorService.GetAnchorById(anchorID);
+            var betAnchors = _anchorService.GetAll();
             if (anchor == null) return;
 
             anchor.AddChips(_currentSelectedChip);

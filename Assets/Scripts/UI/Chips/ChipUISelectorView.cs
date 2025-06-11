@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using Data;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,7 +15,7 @@ namespace UI.Chips
         private void Awake()
         {
             _viewModel = new ChipSelectorViewModel(chipType);
-            ChipSelectorViewModel.SelectedChipType.OnValueChanged += type => ring.SetActive(type == chipType);
+            ChipSelectorViewModel.SelectedChipType.OnValueChanged += SelectedChipTypeOnOnValueChanged();
             _viewModel.Enable(); // Subscribes to EventBus
             _selectButton = GetComponentInChildren<Button>();
             if(_selectButton == null)
@@ -25,7 +24,16 @@ namespace UI.Chips
             BindUI();
         }
 
-        private void OnDestroy() => _viewModel.Disable(); // Unsubscribes from EventBus
+        private Action<ChipType> SelectedChipTypeOnOnValueChanged()
+        {
+            return type => ring.SetActive(type == chipType);
+        }
+
+        private void OnDestroy()
+        {
+            ChipSelectorViewModel.SelectedChipType.OnValueChanged -= SelectedChipTypeOnOnValueChanged();
+            _viewModel.Disable(); // Unsubscribes from EventBus
+        }
 
         private void BindUI()
         {

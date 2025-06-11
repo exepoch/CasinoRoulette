@@ -16,34 +16,11 @@ namespace Gameplay.Betting
     {
         private static IAnchorService instance;
 
-        public static IAnchorService Instance
-        {
-            get
-            {
-                if (instance == null)
-                {
-                    instance = FindFirstObjectByType<AnchorManager>();
-
-                    if (instance != null) return instance;
-                    var go = new GameObject("AnchorManager");
-                    instance = go.AddComponent<AnchorManager>();
-                }
-                return instance;
-            }
-        }
-
         [SerializeField] private List<BetAnchor> allAnchors;
 
         private void Awake()
         {
-            if (instance != null && (AnchorManager)instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-
             instance = this;
-            DontDestroyOnLoad(gameObject);
         }
 
         private void OnEnable()

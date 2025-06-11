@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Events;
 using Events.EventTypes;
 using UI.Models;
-using UnityEngine;
 
 namespace UI.ViewModels
 {
@@ -35,6 +34,10 @@ namespace UI.ViewModels
         public void RegisterEvents()
         {
             EventBus<BetResultEvent>.Subscribe(OnBetResult);
+        }
+        public void UnRegisterEvents()
+        {
+            EventBus<BetResultEvent>.Unsubscribe(OnBetResult);
         }
 
         /// <summary>

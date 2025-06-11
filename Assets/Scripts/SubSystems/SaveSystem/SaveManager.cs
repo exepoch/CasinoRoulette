@@ -1,23 +1,29 @@
 using System;
-using System.Collections;
 using System.IO;
 using System.Linq;
+using Events;
+using Events.EventTypes;
 using UnityEngine;
-using Utils;
 
 namespace SubSystems.SaveSystem
 {
     public class SaveManager : MonoBehaviour
     {
+        public static SaveManager Instance;
         // Path where save files will be stored (in Resources folder)
         private static string saveFilePath = "Assets/Resources/";
         
         private const string SavePrefix = "Roulette_"; // Prefix folder name for save files
-
+        [SerializeField] private string SavePostfix = "RouletType"; // Postfix folder name for save files, roulette type
         // Called when the application is quitting to save all data
         private void OnApplicationQuit()
         {
             SaveAll();
+        }
+
+        private void Awake()
+        {
+            Instance = this;
         }
 
         // Called when the object becomes enabled, triggers loading after short delay
@@ -27,7 +33,7 @@ namespace SubSystems.SaveSystem
         }
 
         // Saves the state of all MonoBehaviours that implement ISaveable<T>
-        private void SaveAll()
+        public void SaveAll()
         {
             // Find all MonoBehaviours in the scene (including inactive)
             var monoBehaviours = FindObjectsOfType<MonoBehaviour>(true);
@@ -54,7 +60,7 @@ namespace SubSystems.SaveSystem
                         string json = JsonUtility.ToJson(state);
 
                         // Create directory if it doesn't exist
-                        string directoryPath = $"{saveFilePath}/{SavePrefix}";
+                        string directoryPath = $"{saveFilePath}/{SavePrefix}/{SavePostfix}";
                         if (!Directory.Exists(directoryPath))
                         {
                             Directory.CreateDirectory(directoryPath);
@@ -98,7 +104,7 @@ namespace SubSystems.SaveSystem
                         var saveKey = (string)saveKeyProp.GetValue(mono);
 
                         // Load JSON text asset from Resources folder
-                        TextAsset textAsset = Resources.Load<TextAsset>($"{SavePrefix}/{saveKey}");
+                        TextAsset textAsset = Resources.Load<TextAsset>($"{SavePrefix}/{SavePostfix}/{saveKey}");
                         if (textAsset == null) continue;
 
                         var json = textAsset.text;
@@ -116,8 +122,7 @@ namespace SubSystems.SaveSystem
                 }
             }
 
-            // Start the UI fade-out animation after loading
-            SceneHideCG.Instance.FadeOut(2);
+            EventBus<DataLoadedEvent>.Raise(new DataLoadedEvent());
         }
     }
 }

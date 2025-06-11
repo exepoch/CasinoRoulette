@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UI.ViewModels;
 using UnityEngine;
@@ -19,6 +20,11 @@ namespace UI.Views
             DeterminedNumberSelectorViewModel.SelectedNumber.OnValueChanged += SetBackgorundColorOfSelected;
             numberText.text = viewModel.ViewNumber.NumberToName();
             button.onClick.AddListener(()=> viewModel.SelectDeterminedNumber(determinedNumber));
+        }
+
+        private void OnDestroy()
+        {
+            DeterminedNumberSelectorViewModel.SelectedNumber.OnValueChanged -= SetBackgorundColorOfSelected;
         }
 
         private void SetBackgorundColorOfSelected(int selected)

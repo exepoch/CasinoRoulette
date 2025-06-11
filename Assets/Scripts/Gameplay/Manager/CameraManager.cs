@@ -36,6 +36,8 @@ namespace Gameplay.Manager
             if (target == null || camTransform == null)
             {
                 Debug.LogWarning("Camera target is NULL!");
+                if (_rotationCoroutine != null)
+                    StopCoroutine(_rotationCoroutine);
                 return;
             }
 

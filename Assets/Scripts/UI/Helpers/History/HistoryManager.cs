@@ -43,6 +43,8 @@ namespace UI.Helpers.History
             _viewModel.OnEntriesUpdated += InitializeScroll;
         }
 
+        private void OnDestroy() => _viewModel.UnRegisterEvents();
+
         /// <summary>
         /// Initializes the scroll system after entries are added.
         /// Sets content height and activates pooled views.

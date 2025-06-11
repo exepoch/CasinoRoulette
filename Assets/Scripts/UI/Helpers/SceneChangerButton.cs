@@ -1,3 +1,4 @@
+using SubSystems.SaveSystem;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -14,6 +15,8 @@ namespace UI.Helpers
         {
             button.onClick.AddListener(() =>
             {
+                if(SaveManager.Instance != null)
+                    SaveManager.Instance.SaveAll();
                 SceneHideCG.Instance.FadeIn(1, () =>
                 {
                     SceneManager.LoadSceneAsync(sceneNumber);

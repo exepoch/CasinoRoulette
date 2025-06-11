@@ -1,9 +1,11 @@
+using System;
 using Data;
 using Events;
 using Events.EventTypes;
 using Events.EventTypes.Audio;
 using SubSystems.SaveSystem;
 using UnityEngine;
+using Utils;
 
 namespace Gameplay.Manager
 {
@@ -12,29 +14,35 @@ namespace Gameplay.Manager
     /// </summary>
     public class RouletteManager : MonoBehaviour,ISaveable<GameState>
     {
+        [SerializeField] private SceneHideCG cg;
         public string SaveKey => "RouletteManagerGameStateSave";
-        public static RouletteManager Instance;
 
         [SerializeField] private CameraManager cameraManager;
         private GameState _currentState;
 
         private void Awake()
         {
-            Instance = this;
             SetState(GameState.Betting);
             cameraManager.RotateToBetTable(0);
         }
 
         private void OnEnable()
         {
-            EventBus<SpinButtonClickedEvent>.Subscribe(@event => TrySpin());
+            EventBus<SpinButtonClickedEvent>.Subscribe(SpinButtonClicked);
             EventBus<BallStoppedEvent>.Subscribe(OnBallStopped);
+            EventBus<DataLoadedEvent>.Subscribe(OnDataLoaded);
+        }
+
+        private void SpinButtonClicked(SpinButtonClickedEvent obj)
+        {
+            TrySpin();
         }
 
         private void OnDisable()
         {
-            EventBus<SpinButtonClickedEvent>.Unsubscribe(@event => TrySpin());
+            EventBus<SpinButtonClickedEvent>.Unsubscribe(SpinButtonClicked);
             EventBus<BallStoppedEvent>.Unsubscribe(OnBallStopped);
+            EventBus<DataLoadedEvent>.Unsubscribe(OnDataLoaded);
         }
 
         /// <summary>
@@ -44,6 +52,12 @@ namespace Gameplay.Manager
         {
             SetState(GameState.Result);
             Invoke(nameof(BeginGameCycle), 2);
+        }
+        
+        private void OnDataLoaded(DataLoadedEvent obj)
+        {
+            // Start the UI fade-out animation after loading
+            cg.FadeOut(2);
         }
 
         /// <summary>
