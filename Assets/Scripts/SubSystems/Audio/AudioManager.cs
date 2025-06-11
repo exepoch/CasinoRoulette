@@ -16,6 +16,7 @@ namespace SubSystems.Audio
         [SerializeField] private AudioClip chipClip;
         [SerializeField] private AudioClip ballBounceClip;
         [SerializeField] private AudioClip spinStartClip;
+        [SerializeField] private AudioClip hoverClip;
 
         private void OnEnable()
         {
@@ -48,6 +49,11 @@ namespace SubSystems.Audio
                     break;
                 case SoundType.SpinStart:
                     audioSource.PlayOneShot(spinStartClip);
+                    break;
+                case SoundType.Hover:
+                    audioSource.PlayOneShot(hoverClip);
+                    break;
+                default:
                     break;
             }
         }

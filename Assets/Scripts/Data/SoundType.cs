@@ -7,6 +7,7 @@ namespace Data
         Win,
         Lose,
         BallBounce,
-        SpinStart
+        SpinStart,
+        Hover
     }
 }

@@ -3,6 +3,7 @@ using System.Collections;
 using System.IO;
 using System.Linq;
 using UnityEngine;
+using Utils;
 
 namespace SubSystems.SaveSystem
 {
@@ -10,8 +11,6 @@ namespace SubSystems.SaveSystem
     {
         // Path where save files will be stored (in Resources folder)
         private static string saveFilePath = "Assets/Resources/";
-        
-        [SerializeField] private CanvasGroup hiderCg; // UI element used to hide/show loading screen
         
         private const string SavePrefix = "Roulette_"; // Prefix folder name for save files
 
@@ -24,8 +23,6 @@ namespace SubSystems.SaveSystem
         // Called when the object becomes enabled, triggers loading after short delay
         private void OnEnable()
         {
-            hiderCg.alpha = 1; // Show the loading UI
-            hiderCg.gameObject.SetActive(true);
             Invoke(nameof(LoadAll), 1); // Start loading all saved data after 1 second delay
         }
 
@@ -120,25 +117,7 @@ namespace SubSystems.SaveSystem
             }
 
             // Start the UI fade-out animation after loading
-            StartCoroutine(LoadUpAnimation());
-        }
-
-        // Coroutine to fade out the loading UI smoothly
-        private IEnumerator LoadUpAnimation()
-        {
-            var remaininTime = 2f;
-
-            while (remaininTime > 0)
-            {
-                remaininTime -= Time.deltaTime;
-                
-                // Fade alpha from 1 to 0 over 2 seconds
-                hiderCg.alpha = Mathf.Lerp(0, 1, Mathf.Clamp01(remaininTime / 2));
-                yield return null;
-            }
-
-            hiderCg.alpha = 0;
-            hiderCg.gameObject.SetActive(false);
+            SceneHideCG.Instance.FadeOut(2);
         }
     }
 }

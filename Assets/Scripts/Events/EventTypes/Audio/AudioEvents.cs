@@ -1,6 +1,5 @@
 using System;
 using Data;
-using UnityEngine;
 
 namespace Events.EventTypes.Audio
 {

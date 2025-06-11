@@ -4,5 +4,14 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/SelectionScene.unity
+    guid: 44898c222abbeb04590940f7e9e5a0bf
+  - enabled: 1
+    path: Assets/Scenes/EuropeanRoulette.unity
+    guid: 9fc0d4010bbf28b4594072e72b8655ab
+  - enabled: 1
+    path: Assets/Scenes/AmericanRoulette.unity
+    guid: 7ae7b55397dcd624a9f40968aa7a9dc7
   m_configObjects: {}

@@ -1,1 +1,1 @@
-{"betActionSaves":[{"anchorID":11,"selectedChip":1},{"anchorID":23,"selectedChip":50},{"anchorID":17,"selectedChip":50}],"betActionActiveBetsSaves":[{"anchorID":11,"TotalAmount":1},{"anchorID":23,"TotalAmount":50},{"anchorID":17,"TotalAmount":50}],"currentSelectedChip":50,"totalBetAmount":101}
+{"betActionSaves":[],"betActionActiveBetsSaves":[],"currentSelectedChip":10,"totalBetAmount":0}
